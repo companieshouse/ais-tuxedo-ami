@@ -1,0 +1,39 @@
+---
+
+# Oracle Tuxedo
+tuxedo_version: "8.1"
+tuxedo_install_directory: "/opt/tuxedo/{{ tuxedo_version }}"
+
+tuxedo_service_group: tuxedo
+tuxedo_service_group_id: 1010
+tuxedo_service_user_id_minimum: 1010
+tuxedo_service_user_id_increment: 10
+
+tuxedo_service_users:
+  - name: ais
+    uid:  "{{ tuxedo_service_user_id_minimum + (0 * tuxedo_service_user_id_increment) | int }}"
+
+# Informix Client SDK
+informix_sdk_version: "410UC12"
+informix_sdk_install_directory: "/opt/informix-client-sdk/{{ informix_sdk_version }}"
+
+# Informix Workgroup Edition
+informix_service_user: informix
+informix_service_group: informix
+informix_version: "14.10"
+informix_install_directory: "/opt/informix/{{ informix_version }}"
+
+# Oracle Instant Client
+oracle_instant_client_version: 11.2.0.4.0
+oracle_instant_client_install_directory: /opt/oracle-instant-client/{{ oracle_instant_client_version }}
+oracle_instant_client_packages:
+  - basic
+  - precomp
+  - sdk
+
+# If locale is ever changed from 'C', a symlink with the same name should be created
+# in $TUXDIR/locale pointing at $TUXDIR/locale/C for message strings to resolve correctly
+system_locale: C
+
+deployment_dir: deployment
+envfile_name: envfile

@@ -1,0 +1,314 @@
+---
+
+- name: Set timezone to Europe/London
+  community.general.timezone:
+    name: Europe/London
+
+- name: Format swap volume
+  command: "mkswap {{ swap_volume_device_node }}"
+  when: swap_volume_enabled | bool
+
+- name: Add swap volume to filesystem table
+  mount:
+    path: swap
+    src: "{{ swap_volume_device_node }}"
+    fstype: swap
+    opts: defaults
+    state: present
+  when: swap_volume_enabled | bool
+
+- name: Install the 'Development tools' package group
+  yum:
+    name: "@Development tools"
+    state: present
+
+- name: Install i686 build-time software dependencies
+  yum:
+    name:
+      - cyrus-sasl-devel.i686
+      - expat-devel.i686
+      - glibc-devel.i686
+      - glibc-static.i686
+      - libcurl-devel.i686
+      - ncurses-devel.i686
+      - net-snmp-devel.i686
+      - openssl-devel.i686
+      - readline-devel.i686
+      - libaio-devel.i686
+    state: latest
+
+- name: Install i686 run-time software dependencies
+  yum:
+    name:
+      - glibc.i686
+      - libgcc.i686
+      - libstdc++.i686
+      - openssl-libs.i686
+      - zlib.i686
+    state: latest
+
+- name: Install additional i686 library dependencies
+  aws_s3:
+    bucket: "{{ resource_bucket_name }}"
+    object: "{{ resource_bucket_c_libraries_prefix }}/libstdc++-libc6.2-2.so.3"
+    dest: /usr/lib/libstdc++-libc6.2-2.so.3
+    mode: get
+
+- name: Set permissions for i686 library dependencies
+  file:
+    path: /usr/lib/libstdc++-libc6.2-2.so.3
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Create temporary directory
+  tempfile:
+    state: directory
+  register: temp_dir
+
+- name: Download Oracle Instant Client archives
+  aws_s3:
+    bucket: "{{ resource_bucket_name }}"
+    object: "{{ resource_bucket_oracle_instant_client_prefix }}/instantclient-{{ item }}-linux-{{ oracle_instant_client_version }}.zip"
+    dest: "{{ temp_dir.path }}/instantclient-{{ item }}-linux-{{ oracle_instant_client_version }}.zip"
+    mode: get
+  loop: "{{ oracle_instant_client_packages }}"
+
+- name: Create Oracle Instant Client installation directory
+  file:
+    path: "{{ oracle_instant_client_install_directory }}"
+    owner: root
+    group: root
+    mode: '0755'
+    state: directory
+
+- name: Extract Oracle Instant Client archives
+  unarchive:
+    src: "{{ temp_dir.path }}/instantclient-{{ item }}-linux-{{ oracle_instant_client_version }}.zip"
+    dest: "{{ oracle_instant_client_install_directory }}"
+    remote_src: yes
+  loop: "{{ oracle_instant_client_packages }}"
+
+- name: Set ownership of Oracle Instant Client installation files
+  file:
+    path: "{{ oracle_instant_client_install_directory }}"
+    state: directory
+    recurse: yes
+    owner: root
+    group: root
+
+- name: Create service group
+  group:
+    name: "{{ tuxedo_service_group }}"
+    gid: "{{ tuxedo_service_group_id }}"
+    state: present
+    system: no
+
+- name: Create service users
+  user:
+    name: "{{ item.name }}"
+    uid: "{{ item.uid }}"
+    groups: "{{ tuxedo_service_group }}"
+    shell: /bin/bash
+    system: no
+  loop: "{{ tuxedo_service_users }}"
+
+- name: Disable password expiry for service users
+  command: "chage -m 0 -M 99999 -I -1 -E -1 {{ item.name }}"
+  loop: "{{ tuxedo_service_users }}"
+
+- name: Create Informix group
+  group:
+    name: "{{ informix_service_group }}"
+    state: present
+    system: yes
+
+- name: Create Informix user
+  user:
+    name: "{{ informix_service_user }}"
+    groups: "{{ informix_service_group }}"
+    shell: /bin/bash
+    system: yes
+
+- name: Disable password expiry for Informix user
+  command: "chage -m 0 -M 99999 -I -1 -E -1 {{ informix_service_user }}"
+
+- name: Create Tuxedo installation directory
+  file:
+    path: "{{ tuxedo_install_directory }}"
+    owner: root
+    group: root
+    mode: '0755'
+    state: directory
+
+- name: Download Tuxedo archive
+  aws_s3:
+    bucket: "{{ resource_bucket_name }}"
+    object: "{{ resource_bucket_tuxedo_prefix }}/tuxedo-{{ tuxedo_version }}.tar.gz"
+    dest: "{{ temp_dir.path }}/tuxedo-{{ tuxedo_version }}.tar.gz"
+    mode: get
+
+- name: Extract Tuxedo archive
+  unarchive:
+    src: "{{ temp_dir.path }}/tuxedo-{{ tuxedo_version }}.tar.gz"
+    dest: "{{ tuxedo_install_directory }}"
+    remote_src: yes
+
+- name: Download Tuxedo license
+  aws_s3:
+    bucket: "{{ resource_bucket_name }}"
+    object: "{{ resource_bucket_tuxedo_license_prefix }}/tuxedo-{{ tuxedo_version }}"
+    dest: "{{ tuxedo_install_directory }}/udataobj/lic.txt"
+    mode: get
+
+- name: Set ownership of Tuxedo installation files
+  file:
+    path: "{{ tuxedo_install_directory }}"
+    state: directory
+    recurse: yes
+    owner: root
+    group: root
+
+- name: Create Informix Client SDK installation directory
+  file:
+    path: "{{ informix_sdk_install_directory }}"
+    owner: root
+    group: root
+    mode: '0755'
+    state: directory
+
+- name: Download Informix Client SDK archive
+  aws_s3:
+    bucket: "{{ resource_bucket_name }}"
+    object: "{{ resource_bucket_informix_sdk_prefix }}/informix-sdk-{{ informix_sdk_version }}.tar.gz"
+    dest: "{{ temp_dir.path }}/informix-sdk-{{ informix_sdk_version }}.tar.gz"
+    mode: get
+
+- name: Extract Download Informix Client SDK archive
+  unarchive:
+    src: "{{ temp_dir.path }}/informix-sdk-{{ informix_sdk_version }}.tar.gz"
+    dest: "{{ informix_sdk_install_directory }}"
+    remote_src: yes
+
+- name: Set ownership of Informix Client SDK installation files
+  file:
+    path: "{{ informix_sdk_install_directory }}"
+    state: directory
+    recurse: yes
+    owner: root
+    group: root
+
+- name: Remove temporary directory
+  file:
+    path: temp_dir.path
+    state: absent
+
+# The bundled InstallAnywhere installer for IBM Informix 14.10 requires more
+# space than is provided by the tmpfs mount from the base distribution image.
+# It also attempts to load shared object files from a tmpfs filesystem (/tmp)
+# during installation which, by default, is not permitted as the filesystem is
+# mounted with the 'noexec' option.
+#
+# The installation procedure therefore requires additional steps to be performed
+# which are documented here for reference:
+#
+#   - Create a non-tmpfs temporary directory to avoid having to resize the
+#     tmpfs filesystem from the base image or shrink the filesystem before
+#     creating the resulting machine image
+#   - Export an environment variable IATEMPDIR with the path to the previously
+#     created temporary directory before running ids_install to instruct the
+#     installer to use the specified temporary directory
+#   - Despite using IATEMPDIR, the bundled installer will not relocate all
+#     shared object files to the path specified (e.g. libnativeAPI.so) and the
+#     dynamic loader will be unable to execute such files given that the default
+#     'noexec' option is enabled for the tmpfs filesystem; to workaround this
+#     the active filesystem is remounted with the 'exec' option, then remounted
+#     again after installation to reinstate the 'noexec' option
+
+- name: Remount tmpfs filesystem at /tmp with 'exec' option
+  ansible.posix.mount:
+    path: /tmp
+    opts: exec
+    state: remounted
+
+- name: Create temporary directory for Informix installer
+  tempfile:
+    state: directory
+  register: informix_temp_dir
+
+- name: Download Informix installer
+  aws_s3:
+    bucket: "{{ resource_bucket_name }}"
+    object: "{{ resource_bucket_informix_prefix }}/informix-{{ informix_version }}.tar.gz"
+    dest: "{{ informix_temp_dir.path }}/informix-{{ informix_version }}.tar.gz"
+    mode: get
+
+- name: Extract Informix installer
+  unarchive:
+    src: "{{ informix_temp_dir.path }}/informix-{{ informix_version }}.tar.gz"
+    dest: "{{ informix_temp_dir.path }}"
+    remote_src: yes
+
+- name: Create Informix installation properties file
+  template:
+    src: informix_install.properties.j2
+    dest: "{{ informix_temp_dir.path }}/informix_install.properties"
+
+- name: Install Informix
+  command: "sh {{ informix_temp_dir.path }}/ids_install -i silent -f {{ informix_temp_dir.path }}/informix_install.properties"
+
+- name: Set ownership and permissions for Informix installation directory
+  file:
+    path: "{{ informix_install_directory }}"
+    owner: "{{ informix_service_user }}"
+    group: "{{ informix_service_group }}"
+    mode: '0755'
+    state: directory
+
+- name: Remove temporary directory for Informix installer
+  file:
+    path: informix_temp_dir.path
+    state: absent
+
+- name: Create temporary directory for Informix license installer
+  tempfile:
+    state: directory
+  register: informix_license_temp_dir
+
+- name: Install OpenJDK to provide JRE for Informix license installer
+  yum:
+    name:
+      - java-11-openjdk.x86_64
+    state: latest
+
+- name: Download Informix license installer
+  aws_s3:
+    bucket: "{{ resource_bucket_name }}"
+    object: "{{ resource_bucket_informix_prefix }}/informix-license-installer-{{ informix_version }}.tar.gz"
+    dest: "{{ informix_license_temp_dir.path }}/informix-license-installer-{{ informix_version }}.tar.gz"
+    mode: get
+
+- name: Extract Informix license installer
+  unarchive:
+    src: "{{ informix_license_temp_dir.path }}/informix-license-installer-{{ informix_version }}.tar.gz"
+    dest: "{{ informix_license_temp_dir.path }}"
+    remote_src: yes
+
+- name: Create Informix license installer properties file
+  template:
+    src: informix_license_install.properties.j2
+    dest: "{{ informix_license_temp_dir.path }}/informix_license_install.properties"
+
+- name: Install Informix license
+  command: "java -jar {{ informix_license_temp_dir.path }}/we_edition.jar -i silent -f {{ informix_license_temp_dir.path }}/informix_license_install.properties"
+
+- name: Remove temporary directory for Informix license installer
+  file:
+    path: informix_license_temp_dir.path
+    state: absent
+
+- name: Remount tmpfs filesystem at /tmp with 'noexec' option
+  ansible.posix.mount:
+    path: /tmp
+    opts: noexec
+    state: remounted
