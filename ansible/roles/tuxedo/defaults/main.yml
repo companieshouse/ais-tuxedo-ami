@@ -37,3 +37,10 @@ system_locale: C
 
 deployment_dir: deployment
 envfile_name: envfile
+
+volume_mounts:
+  - device: /dev/xvdb
+    file_system_type: xfs
+    logical_volume: ais
+    volume_group: data
+    mount_point: /image

@@ -44,6 +44,12 @@ variable "aws_subnet_filter_name" {
   description = "The subnet filter string. Any filter described by the DescribeSubnets API documentation is valid. If multiple subnets match then the one with the most IPv4 addresses free will be used"
 }
 
+variable "data_volume_size_gb" {
+  type        = number
+  default     = 10
+  description = "The EC2 instance data volume size in Gibibytes (GiB)"
+}
+
 variable "playbook_file_path" {
   type        = string
   default     = "../ansible/playbook.yml"
