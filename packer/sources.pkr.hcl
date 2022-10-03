@@ -16,6 +16,13 @@ source "amazon-ebs" "builder" {
     delete_on_termination = true
   }
 
+  launch_block_device_mappings {
+    device_name = "/dev/xvdb"
+    volume_size = var.data_volume_size_gb
+    volume_type = "gp2"
+    delete_on_termination = false
+  }
+
   dynamic "launch_block_device_mappings" {
     for_each = var.swap_volume_size_gb > 0 ? [1] : []
 
