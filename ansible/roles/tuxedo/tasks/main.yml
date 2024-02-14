@@ -278,7 +278,7 @@
 - name: Install OpenJDK to provide JRE for Informix license installer
   yum:
     name:
-      - java-11-openjdk.x86_64
+      - java-11-openjdk-11.0.13.0.8-1.el7_9
     state: latest
 
 - name: Download Informix license installer
