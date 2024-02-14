@@ -100,13 +100,13 @@ variable "resource_bucket_c_libraries_prefix" {
 
 variable "resource_bucket_informix_prefix" {
   type        = string
-  default     = "packages/informix"
+  default     = "informix"
   description = "The object prefix for Informix packages within the S3 resources bucket"
 }
 
 variable "resource_bucket_informix_sdk_prefix" {
   type        = string
-  default     = "packages/informix"
+  default     = "informix"
   description = "The object prefix for Informix Client SDK packages within the S3 resources bucket"
 }
 
@@ -117,7 +117,7 @@ variable "resource_bucket_name" {
 
 variable "resource_bucket_oracle_instant_client_prefix" {
   type        = string
-  default     = "packages/oracle"
+  default     = "oracle"
   description = "The object prefix for Oracle Instant Client packages within the S3 resources bucket"
 }
 
@@ -129,7 +129,7 @@ variable "resource_bucket_tuxedo_license_prefix" {
 
 variable "resource_bucket_tuxedo_prefix" {
   type        = string
-  default     = "packages/tuxedo"
+  default     = "tuxedo"
   description = "The object prefix for Tuxedo packages within the S3 resources bucket"
 }
 
