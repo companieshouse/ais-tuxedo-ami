@@ -117,7 +117,7 @@ variable "resource_bucket_name" {
 
 variable "resource_bucket_oracle_instant_client_prefix" {
   type        = string
-  default     = "oracle"
+  default     = "oracle/instant-client"
   description = "The object prefix for Oracle Instant Client packages within the S3 resources bucket"
 }
 
