@@ -312,3 +312,19 @@
     path: /tmp
     opts: noexec
     state: remounted
+
+- name: Find authorized_keys and shell history files
+  find:
+    paths:
+      - /root
+      - /home
+    patterns:
+      - authorized_keys
+      - .*history
+  register: files_for_deletion
+
+- name: Delete authorized_keys and shell history files
+  file:
+    path: "{{ item.path }}"
+    state: absent
+  with_items: "{{ files_for_deletion.files }}"
