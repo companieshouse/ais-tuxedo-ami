@@ -44,10 +44,46 @@ variable "aws_subnet_filter_name" {
   description = "The subnet filter string. Any filter described by the DescribeSubnets API documentation is valid. If multiple subnets match then the one with the most IPv4 addresses free will be used"
 }
 
+variable "force_delete_snapshot" {
+  type        = bool
+  default     = false
+  description = "Delete snapshots associated with AMIs, which have been deregistered by force_deregister"
+}
+
+variable "force_deregister" {
+  type        = bool
+  default     = false
+  description = "Deregister an existing AMI if one with the same name already exists"
+}
+
+variable "kms_key_id" {
+  type        = string
+  default     = "alias/packer-builders-kms"
+  description = "The KMS key ID or alias to use when encrypting the AMI EBS volumes; defaults to the AWS managed key if empty"
+}
+
+variable "data_volume_device_node" {
+  type        = string
+  default     = "/dev/xvdb"
+  description = "The device node identifier for the data volume"
+}
+
+variable "data_volume_iops" {
+  type        = number
+  default     = 3000
+  description = "The baseline IOPS for the data EBS volume; 3000 is the gp3 default"
+}
+
 variable "data_volume_size_gb" {
   type        = number
   default     = 10
   description = "The EC2 instance data volume size in Gibibytes (GiB)"
+}
+
+variable "data_volume_throughput" {
+  type        = number
+  default     = 125
+  description = "The throughput, in MiB/s, for the data EBS volume; 125 is the gp3 default"
 }
 
 variable "playbook_file_path" {
@@ -64,13 +100,13 @@ variable "resource_bucket_c_libraries_prefix" {
 
 variable "resource_bucket_informix_prefix" {
   type        = string
-  default     = "packages/informix"
+  default     = "informix"
   description = "The object prefix for Informix packages within the S3 resources bucket"
 }
 
 variable "resource_bucket_informix_sdk_prefix" {
   type        = string
-  default     = "packages/informix"
+  default     = "informix"
   description = "The object prefix for Informix Client SDK packages within the S3 resources bucket"
 }
 
@@ -81,7 +117,7 @@ variable "resource_bucket_name" {
 
 variable "resource_bucket_oracle_instant_client_prefix" {
   type        = string
-  default     = "packages/oracle"
+  default     = "oracle/instant-client"
   description = "The object prefix for Oracle Instant Client packages within the S3 resources bucket"
 }
 
@@ -93,14 +129,32 @@ variable "resource_bucket_tuxedo_license_prefix" {
 
 variable "resource_bucket_tuxedo_prefix" {
   type        = string
-  default     = "packages/tuxedo"
+  default     = "tuxedo"
   description = "The object prefix for Tuxedo packages within the S3 resources bucket"
+}
+
+variable "root_volume_iops" {
+  type        = number
+  default     = 3000
+  description = "The baseline IOPS for the root EBS volume; 3000 is the gp3 default"
 }
 
 variable "root_volume_size_gb" {
   type        = number
   default     = 20
   description = "The EC2 instance root volume size in Gibibytes (GiB)"
+}
+
+variable "root_volume_throughput" {
+  type        = number
+  default     = 125
+  description = "The throughput, in MiB/s, for the root EBS volume; 125 is the gp3 default"
+}
+
+variable "ssh_clear_authorized_keys" {
+  type        = bool
+  default     = true
+  description = "Defines whether the authorized_keys file should be cleared, post-build"
 }
 
 variable "ssh_private_key_file" {
@@ -117,14 +171,26 @@ variable "ssh_username" {
 
 variable "swap_volume_device_node" {
   type        = string
-  default     = "/dev/xvdb"
+  default     = "/dev/xvdc"
   description = "The device node identifier for the swap volume"
+}
+
+variable "swap_volume_iops" {
+  type        = number
+  default     = 3000
+  description = "The baseline IOPS for the swap EBS volume; 3000 is the gp3 default"
 }
 
 variable "swap_volume_size_gb" {
   type        = number
   default     = 0
   description = "The EC2 instance swap volume size in Gibibytes (GiB); set to 0 to disable swap volume"
+}
+
+variable "swap_volume_throughput" {
+  type        = number
+  default     = 125
+  description = "The throughput, in MiB/s, for the swap EBS volume; 125 is the gp3 default"
 }
 
 variable "version" {
