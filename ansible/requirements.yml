@@ -12,7 +12,7 @@ roles:
     version: 3.1.0
   - src: https://github.com/companieshouse/ansible-role-mounted-volume
     name: mounted-volume
-    version: "1.0.5"
+    version: switch-to-dnf-module
 
 collections:
   - name: community.general
