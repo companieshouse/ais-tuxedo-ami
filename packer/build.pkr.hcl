@@ -6,6 +6,7 @@ build {
   # Install Python bindings for SELinux
   provisioner "shell" {
     inline = ["sudo yum -y install libselinux-python"]
+    remote_folder = "/home/centos"
   }
 
   provisioner "ansible" {
