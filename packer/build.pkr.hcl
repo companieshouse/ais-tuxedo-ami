@@ -3,6 +3,11 @@ build {
     "source.amazon-ebs.builder",
   ]
 
+  # Install Python bindings for SELinux
+  provisioner "shell" {
+    inline = ["sudo yum -y install libselinux-python"]
+  }
+
   provisioner "ansible" {
     host_alias = "${var.ansible_host_alias}"
     playbook_file = "${var.playbook_file_path}"
