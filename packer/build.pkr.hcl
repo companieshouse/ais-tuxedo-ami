@@ -5,7 +5,10 @@ build {
 
   # Install Python bindings for SELinux
   provisioner "shell" {
-    inline = ["sudo yum -y install libselinux-python3"]
+    inline = [
+      "sudo yum -y install dnf",
+      "sudo yum -y install libselinux-python3"
+    ]
     remote_folder = "/home/centos"
   }
 
