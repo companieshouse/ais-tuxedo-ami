@@ -11,7 +11,8 @@ tuxedo_service_user_id_increment: 10
 
 tuxedo_service_users:
   - name: ais
-    uid:  "{{ tuxedo_service_user_id_minimum + (0 * tuxedo_service_user_id_increment) | int }}"
+    uid: "{{ tuxedo_service_user_id_minimum + (0 * tuxedo_service_user_id_increment) | int }}"
+    profile: /ais/ais.profile
 
 # Informix Client SDK
 informix_sdk_version: "410UC12"
@@ -34,9 +35,6 @@ oracle_instant_client_packages:
 # If locale is ever changed from 'C', a symlink with the same name should be created
 # in $TUXDIR/locale pointing at $TUXDIR/locale/C for message strings to resolve correctly
 system_locale: C
-
-deployment_dir: deployment
-envfile_name: envfile
 
 volume_mounts:
   - device: /dev/xvdb
