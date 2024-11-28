@@ -133,6 +133,15 @@
 - name: Disable password expiry for Informix user
   command: "chage -m 0 -M 99999 -I -1 -E -1 {{ informix_service_user }}"
 
+- name: Create .bash_profile for service users
+  template:
+    src: bash_profile.j2
+    dest: "/home/{{ item.name }}/.bash_profile"
+    owner: "{{ item.name }}"
+    group: "{{ item.name }}"
+    mode: '0644'
+  loop: "{{ tuxedo_service_users }}"
+
 - name: Create Tuxedo installation directory
   file:
     path: "{{ tuxedo_install_directory }}"
