@@ -6,5 +6,4 @@
     - aws-nvme-device-files
     - mounted-volume
     - epel
-    - pip
     - tuxedo
