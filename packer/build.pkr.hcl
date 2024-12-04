@@ -7,7 +7,7 @@ build {
   provisioner "shell" {
     inline = [
       "sudo yum -y install dnf",
-      "sudo yum -y install libselinux-python3"
+      "sudo yum -y install libselinux-python3 python2-dnf"
     ]
     remote_folder = "/home/centos"
   }
