@@ -3,15 +3,6 @@ build {
     "source.amazon-ebs.builder",
   ]
 
-  # Install Python bindings for SELinux
-  provisioner "shell" {
-    inline = [
-      "sudo yum -y install dnf",
-      "sudo yum -y install libselinux-python3"
-    ]
-    remote_folder = "/home/centos"
-  }
-
   provisioner "ansible" {
     host_alias = "${var.ansible_host_alias}"
     playbook_file = "${var.playbook_file_path}"
