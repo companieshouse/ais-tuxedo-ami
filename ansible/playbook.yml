@@ -3,8 +3,10 @@
 - hosts: tuxedo
   become: true
   roles:
-    - aws-nvme-device-files
-    - mounted-volume
-    - epel
-    - pip
-    - tuxedo
+    - role: aws-nvme-device-files
+      vars:
+        ansible_python_interpreter: /usr/bin/python
+    - role: mounted-volume
+    - role: epel
+    - role: pip
+    - role: tuxedo
