@@ -290,6 +290,12 @@
       - java-11-openjdk-11.0.13.0.8-1.el7_9
     state: latest
 
+- name: Install package requirements of DevOps
+  yum:
+    name:
+      - jq.x86_64
+    state: latest
+
 - name: Download Informix license installer
   aws_s3:
     bucket: "{{ resource_bucket_name }}"
